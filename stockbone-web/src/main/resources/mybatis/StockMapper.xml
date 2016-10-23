@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Stock">
+
+	<insert id="insertStock" parameterType="com.stockbone.components.stock.Stock">
+		insert into stock(code,name,exchange,go_public_time)
+		values (#{code},#{name},#{exchange},#{goPublicTime})
+	</insert>
+	
+	<select id="isExist" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select count(1) from stock where code = #{code}
+	</select>
+
+	<select id="selectStock" parameterType="com.stockbone.web.components.StockQueryParameter" resultType="java.util.HashMap">
+		select code,name,exchange,go_public_time
+		from stock
+		<where>
+			<if test="(code != null)">
+				and code = #{code}
+			</if>
+			<if test="(exchange != null)">
+				and exchange = #{exchange}
+			</if>
+			<if test="(name != null)">
+				and name like '%${name}%'
+			</if>
+			<if test="(goPublicTimeFrom != 0)">
+				and go_public_time &gt; #{goPublicTimeFrom}
+			</if>
+			<if test="(goPublicTimeTo != 0)">
+				and go_public_time &lt;= #{goPublicTimeTo}
+			</if>
+		</where>
+		order by code
+		<if test="(length != 0)">
+			limit #{start},#{length}
+		</if>
+	</select>
+	
+	<delete id="deleteStock" parameterType="java.lang.String">
+		delete from stock where code = #{code}
+	</delete>
+
+</mapper>

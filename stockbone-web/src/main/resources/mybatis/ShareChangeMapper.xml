@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ShareChange">
+
+	<insert id="insertShareChange" parameterType="java.util.Map">
+		insert into
+		share_change(id,code,change_date,a_shares,b_shares,total_shares,change_reason)
+		values
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			(#{item.id},#{item.code},#{item.changeDate},#{item.AShares},#{item.BShares},#{item.totalShares},#{item.changeReason})
+		</foreach>
+	</insert>
+
+	<select id="selectShareChange" parameterType="com.stockbone.web.components.ShareChangeQueryParameter" resultType="java.util.HashMap">
+		select
+		id,code,change_date,a_shares,b_shares,total_shares,change_reason
+		from share_change
+		<where>
+			<if test="(code != null)">
+				and code = #{code}
+			</if>
+			<if test="(changeDate != 0)">
+				and change_date = #{changeDate}
+			</if>
+		</where>
+		order by change_date desc
+	</select>
+	
+	<delete id="deleteShareChange"  parameterType="java.util.Map">
+		delete from share_change where code = #{code} 
+		<if test="(changeDate != 0)">
+			and change_date = #{changeDate}
+		</if>
+	</delete>
+	
+	<delete id="merge" parameterType="java.util.Map">
+		delete from a using share_change as a,
+					share_change as b 
+		where a.id &lt; b.id and a.code = b.code and a.change_date = b.change_date
+		<if test="(code != null)">
+			and a.code = #{code}
+		</if>
+	</delete>
+
+</mapper>
